@@ -434,18 +434,19 @@ export default function Home() {
               <p className="text-xs text-slate-400 -mt-1">
                 메시지 수 기준 상위 {topSenderCount}명
               </p>
-              <div className="flex items-center gap-2 mt-2">
-                <Label htmlFor="top-sender-count" className="text-xs text-slate-500">
-                  표시 인원:
-                </Label>
-                <Input
+              <div className="mt-3 space-y-2">
+                <div className="flex items-center justify-between gap-3 text-xs text-slate-500">
+                  <span>표시 인원: {topSenderCount}명</span>
+                  <span>1명 ~ 20명</span>
+                </div>
+                <input
                   id="top-sender-count"
-                  type="number"
+                  type="range"
                   min="1"
-                  max="50"
+                  max="20"
                   value={topSenderCount}
-                  onChange={(e) => setTopSenderCount(Math.max(1, Math.min(50, parseInt(e.target.value) || 10)))}
-                  className="w-16 h-6 text-xs"
+                  onChange={(e) => setTopSenderCount(Math.max(1, Math.min(20, parseInt(e.target.value) || 10)))}
+                  className="w-full accent-indigo-500"
                 />
               </div>
             </CardHeader>
