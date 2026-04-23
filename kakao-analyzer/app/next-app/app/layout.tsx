@@ -13,6 +13,23 @@ const fontMono = Geist_Mono({
   variable: "--font-mono",
 })
 
+export const metadata = {
+  title: "카카오톡 대화 분석",
+  description: "카카오톡 대화 파일을 업로드하여 분석하고 시각화하세요.",
+  openGraph: {
+    title: "카카오톡 대화 분석",
+    description: "카카오톡 대화 파일을 업로드하여 분석하고 시각화하세요.",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "카카오톡 대화 분석",
+      },
+    ],
+  },
+}
+
 export default function RootLayout({
   children,
 }: Readonly<{
