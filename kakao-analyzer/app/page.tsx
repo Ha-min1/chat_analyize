@@ -130,6 +130,7 @@ export default function Home() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [keywordInput, setKeywordInput] = useState("이모티콘,사진,클로");
   const [error, setError] = useState<string | null>(null);
+  const [topSenderCount, setTopSenderCount] = useState(10);
 
   // ============================================================
   // 통계 계산 (메시지 배열이 변경될 때마다 자동 재계산)
@@ -167,20 +168,20 @@ export default function Home() {
       }
     });
 
-    // 발신자 데이터를 내림차순 정렬 후 상위 10명만 추출
+    // 발신자 데이터를 내림차순 정렬 후 상위 N명만 추출
     const senderData = Object.entries(senders)
       .map(([name, count]) => ({ name, count }))
       .sort((a, b) => b.count - a.count)
-      .slice(0, 10);
+      .slice(0, topSenderCount);
 
     // 욕설 발신자 데이터를 내림차순 정렬
     const profanitySenderData = Object.entries(profanityBySender)
       .map(([name, count]) => ({ name, count }))
       .sort((a, b) => b.count - a.count)
-      .slice(0, 10);
+      .slice(0, topSenderCount);
 
     return { senderData, hourlyData: hours, profanity, profanitySenderData };
-  }, [messages]);
+  }, [messages, topSenderCount]);
 
   // ============================================================
   // 키워드 분석 데이터 (입력된 키워드 변경 시 재계산)
@@ -428,11 +429,25 @@ export default function Home() {
             <CardHeader className="pb-2">
               <CardTitle className="text-lg font-semibold flex items-center gap-2">
                 <Users className="w-5 h-5 text-indigo-500" />
-                대화 지분 TOP 10
+                대화 지분 TOP {topSenderCount}
               </CardTitle>
               <p className="text-xs text-slate-400 -mt-1">
-                메시지 수 기준 상위 10명
+                메시지 수 기준 상위 {topSenderCount}명
               </p>
+              <div className="flex items-center gap-2 mt-2">
+                <Label htmlFor="top-sender-count" className="text-xs text-slate-500">
+                  표시 인원:
+                </Label>
+                <Input
+                  id="top-sender-count"
+                  type="number"
+                  min="1"
+                  max="50"
+                  value={topSenderCount}
+                  onChange={(e) => setTopSenderCount(Math.max(1, Math.min(50, parseInt(e.target.value) || 10)))}
+                  className="w-16 h-6 text-xs"
+                />
+              </div>
             </CardHeader>
             <CardContent className="h-80 pt-2">
               <ResponsiveContainer width="100%" height="100%">
