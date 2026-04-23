@@ -341,7 +341,9 @@ export default function Home() {
             </CardHeader>
             <CardContent>
               <div className="text-lg font-semibold text-slate-800 truncate">
-                {messages[0]?.date.split("요일")[0] ?? "알 수 없음"}
+                {messages.length > 0
+                  ? `${messages[0].date.split("요일")[0].trim()} ~ ${messages[messages.length - 1].date.split("요일")[0].trim()}`
+                  : "알 수 없음"}
               </div>
             </CardContent>
           </Card>
