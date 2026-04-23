@@ -512,7 +512,10 @@ export default function Home() {
                     tick={{ fontSize: 11, fill: "#64748b" }}
                     axisLine={false}
                     tickLine={false}
-                    width={40}
+                    width={150}
+                    tickFormatter={(value) =>
+                      new Intl.NumberFormat("ko-KR").format(Number(value))
+                    }
                   />
                   <Tooltip
                     contentStyle={{

@@ -144,6 +144,7 @@ export default function Home() {
       .fill(0)
       .map((_, i) => ({ name: `${i}시`, count: 0 }));
     let profanity = 0; // 욕설 총 횟수
+    const profanityBySender: Record<string, number> = {}; // 발신자별 욕설 횟수
 
     messages.forEach((m) => {
       // 발신자 집계
@@ -154,9 +155,16 @@ export default function Home() {
       if (h >= 0) hours[h].count++;
 
       // 욕설 포함 여부 검사
+      let hasProfanity = false;
       PROFANITY_LIST.forEach((word) => {
-        if (m.content.includes(word)) profanity++;
+        if (m.content.includes(word)) {
+          profanity++;
+          hasProfanity = true;
+        }
       });
+      if (hasProfanity) {
+        profanityBySender[m.sender] = (profanityBySender[m.sender] || 0) + 1;
+      }
     });
 
     // 발신자 데이터를 내림차순 정렬 후 상위 10명만 추출
@@ -165,7 +173,13 @@ export default function Home() {
       .sort((a, b) => b.count - a.count)
       .slice(0, 10);
 
-    return { senderData, hourlyData: hours, profanity };
+    // 욕설 발신자 데이터를 내림차순 정렬
+    const profanitySenderData = Object.entries(profanityBySender)
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 10);
+
+    return { senderData, hourlyData: hours, profanity, profanitySenderData };
   }, [messages]);
 
   // ============================================================
@@ -349,6 +363,64 @@ export default function Home() {
           </Card>
         </div>
 
+        {/* 욕설 발신자별 차트 */}
+        {stats?.profanitySenderData && stats.profanitySenderData.length > 0 && (
+          <Card className="bg-white shadow-md border-0 rounded-xl">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-lg font-semibold flex items-center gap-2">
+                <AlertTriangle className="w-5 h-5 text-red-500" />
+                욕설 발신자별 분석
+              </CardTitle>
+              <p className="text-xs text-slate-400 -mt-1">
+                욕설 포함 메시지 수 기준 상위 10명
+              </p>
+            </CardHeader>
+            <CardContent className="h-80 pt-2">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart
+                  data={stats.profanitySenderData}
+                  layout="vertical"
+                  margin={{ top: 5, right: 20, left: 0, bottom: 5 }}
+                >
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    horizontal={false}
+                    stroke="#e2e8f0"
+                  />
+                  <XAxis type="number" hide />
+                  <YAxis
+                    dataKey="name"
+                    type="category"
+                    width={90}
+                    tick={{ fontSize: 12, fill: "#475569" }}
+                    axisLine={false}
+                    tickLine={false}
+                  />
+                  <Tooltip
+                    cursor={{ fill: "#f1f5f9" }}
+                    contentStyle={{
+                      borderRadius: "8px",
+                      border: "none",
+                      boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)",
+                    }}
+                  />
+                  <Bar
+                    dataKey="count"
+                    radius={[0, 6, 6, 0]}
+                    barSize={24}
+                    fill="#ef4444"
+                    label={{
+                      position: "right",
+                      fontSize: 11,
+                      fill: "#64748b",
+                    }}
+                  />
+                </BarChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        )}
+
         {/* 차트 영역: 참여자 지분 & 시간대별 활성도 */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* 참여자 지분 (가로 막대 차트) */}
@@ -446,7 +518,10 @@ export default function Home() {
                     tick={{ fontSize: 11, fill: "#64748b" }}
                     axisLine={false}
                     tickLine={false}
-                    width={35}
+                    width={55}
+                    tickFormatter={(value) =>
+                      new Intl.NumberFormat("ko-KR").format(Number(value))
+                    }
                   />
                   <Tooltip
                     cursor={{ fill: "#fef3c7" }}
@@ -512,7 +587,10 @@ export default function Home() {
                     tick={{ fontSize: 11, fill: "#64748b" }}
                     axisLine={false}
                     tickLine={false}
-                    width={40}
+                    width={55}
+                    tickFormatter={(value) =>
+                      new Intl.NumberFormat("ko-KR").format(Number(value))
+                    }
                   />
                   <Tooltip
                     contentStyle={{
